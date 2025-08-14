@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "SCHEMA"."Post" ALTER COLUMN "imageUrl" DROP NOT NULL;

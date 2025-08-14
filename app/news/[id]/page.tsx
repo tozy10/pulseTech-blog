@@ -1,8 +1,11 @@
-import { ArticleParam, categoryParam } from "@/types";
 import {prisma} from '@/lib/prisma'
+interface ArticleParam  {
+  params: Promise<{ id: string }>; // params is a Promise
 
+}
 export default async function CategoryPage({params}: ArticleParam   ){
-const id =  Number(params.id)
+  const resolvedParam = await params
+  const id = await Number(resolvedParam.id)
 const post = await prisma.post.findUniqueOrThrow({
     where: {id},
     include:{

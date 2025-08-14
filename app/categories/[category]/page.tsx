@@ -1,9 +1,12 @@
-import { categoryParam } from "@/types";
+
 import {prisma} from '@/lib/prisma'
 import NewsCard from "@/app/components/newsCard";
+interface categoryParam  {
+  params: Promise<{ category: string }>; // params is a Promise
 
+}
 export default async function CategoryPage({params}: categoryParam){
-const {category} =  params
+const {category} =  await params
 const posts = await prisma.post.findMany({
     where: {
         category: category

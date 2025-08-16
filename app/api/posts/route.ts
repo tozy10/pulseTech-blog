@@ -1,15 +1,18 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma"; // adjust if your prisma path is different
+import { prisma } from "@/lib/prisma"; 
 import path from "path";
-import { writeFile } from "fs/promises";
 import { randomUUID } from "crypto";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import {createClient} from  "@supabase/supabase-js"
 import { json } from "stream/consumers";
 
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 export async function POST(request: Request) {
 const session = await auth()
-console.log(FormData)
   try {
     // Parse the incoming form data
     const formData = await request.formData();
@@ -20,25 +23,26 @@ console.log(FormData)
  
     const published = formData.get("published") === "on";
     const description = formData.get("description") as string
-    console.log(content, title, category, published, description, session?.user?.id, )
+   
     // Handle file upload
     const file = formData.get("image") as File | null;
     let imageUrl: string | null = null;
 
     if (file && file.size > 0) {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
+      const fileExt = file.name.split(".").pop() || "png";
+      const filename = `${randomUUID()}.${fileExt}`;
 
-      // Create unique filename to avoid overwriting
-      const fileExt = path.extname(file.name) || ".png";
-      const fileName = `${randomUUID()}${fileExt}`;
-      const uploadDir = path.join(process.cwd(), "public", "uploads");
+      const{data, error} = await supabase.storage
+      .from("images")
+      .upload(fileName, file{
+        contentType: file.type,
+      });
+      if (error) throw error;
 
-      // Save file to /public/uploads
-      await writeFile(path.join(uploadDir, fileName), buffer);
-
-      // This will be the URL you can use in <img>
-      imageUrl = `/uploads/${fileName}`;
+      const{
+        data: {publicUrl},
+      } = supabase.storage.from("uploads").getPublicUrl(filename);
+      imageUrl = publicUrl;
     }
 
     // Create post in Prisma

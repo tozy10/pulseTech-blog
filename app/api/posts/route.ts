@@ -4,6 +4,7 @@ import { randomUUID } from "crypto";
 import { auth } from "@/auth";
 import { createClient } from "@supabase/supabase-js";
 
+// server-side Supabase client
 const supabase = createClient(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -13,7 +14,7 @@ export async function POST(request: Request) {
   const session = await auth();
 
   try {
-    // Parse the incoming form data
+    // Parse form data
     const formData = await request.formData();
     const category = formData.get("category") as string;
     const title = formData.get("title") as string;
@@ -29,12 +30,37 @@ export async function POST(request: Request) {
       const fileExt = file.name.split(".").pop() || "png";
       const filename = `${randomUUID()}.${fileExt}`;
 
-      // upload to "images" bucket (make sure it exists in Supabase Storage)
+      // Upload file to Supabase Storage bucket "images"
       const { error } = await supabase.storage
-        .from("images")
+        .from("images") // make sure this bucket exists
         .upload(filename, file, { contentType: file.type });
 
       if (error) throw error;
 
-      // get public URL
-      const {
+      // Get public URL
+      const { data } = supabase.storage.from("images").getPublicUrl(filename);
+      imageUrl = data.publicUrl;
+    }
+
+    // Create post in Prisma
+    await prisma.post.create({
+      data: {
+        title,
+        category,
+        content,
+        published,
+        authorId: session?.user?.id,
+        description,
+        imageUrl: imageUrl ?? undefined,
+      },
+    });
+
+    return NextResponse.redirect(new URL("/", request.url));
+  } catch (error) {
+    console.error("Error creating post:", error);
+    return NextResponse.json(
+      { success: false, error: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}

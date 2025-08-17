@@ -3,10 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   images:{
-    domains:['placehold.co', 'www.freepik.com'],
     
     remotePatterns: [
-      new URL('https://psjoersjmxrgsioticxz.supabase.co/'),
+      new URL('https://psjoersjmxrgsioticxz.supabase.co/storage/v1/object/public/images/**'),
       new URL('https://placehold.co/')
     ],
     

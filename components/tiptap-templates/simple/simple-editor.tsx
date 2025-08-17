@@ -64,7 +64,7 @@ import { useIsMobile } from "@/hooks/use-mobile"
 import { useWindowSize } from "@/hooks/use-window-size"
 import { useCursorVisibility } from "@/hooks/use-cursor-visibility"
 
-// --- Components ---
+// --- Components ---https://pulse-tech-blog-xoxr.vercel.app/
 import { ThemeToggle } from "@/components/tiptap-templates/simple/theme-toggle"
 
 // --- Lib ---
@@ -73,7 +73,7 @@ import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils"
 // --- Styles ---
 import "@/components/tiptap-templates/simple/simple-editor.scss"
 
-import content from "@/components/tiptap-templates/simple/data/content.json"
+
 
 const MainToolbarContent = ({
   onHighlighterClick,
@@ -233,7 +233,6 @@ export function SimpleEditor({ onUpdate }: SimpleEditorProps) {
         onError: (error) => console.error("Upload failed:", error),
       }),
     ],
-    content,
     onUpdate: ({ editor }) => {
       const html = editor.getHTML()
       if (onUpdate) onUpdate(html)
